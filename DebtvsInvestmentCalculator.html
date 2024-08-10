@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Vs Invest Calculator</title>
+<style>
+    .diagonal-div {
+        width: 200px; /* Adjust width as needed */
+        height: 200px; /* Adjust height as needed */
+        background-color: white; /* Set background color */
+        position: relative;
+        overflow: hidden;
+    }
+
+    .diagonal-div::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #3498db; /* Set diagonal color */
+        transform-origin: bottom left;
+        transform: skewY(-10deg); /* Adjust angle as needed */
+    }
+    body{
+        display: grid;
+
+    }
+    form{
+        display:flex;
+        flex-direction: column;
+        width: 50%;
+        margin: auto;
+        
+    }
+    label{
+        display: flex;
+        justify-content: space-between;
+        margin: 0.5rem;
+    }
+    #slideBox{
+        display: grid;
+        grid-template-columns: 1fr 1fr 3fr 1fr 1fr;
+        justify-content: space-around;
+        width: 75%;
+        height: 50px;
+        background-color: lightgrey;
+        margin: 10px auto;
+    }
+    #slideLine{
+        width:50%;
+        height: 10px;
+        background-color:black;
+        margin: auto;
+    }
+    #slideButton{
+        width:5%;
+        height: 100%;
+        background-color: gray;
+        margin: auto;
+    }
+    #debtAllocationBox{
+        background-color: white;
+        border: 1px solid black;
+        height: auto;
+        width: 50%;
+        display: grid;
+    }
+    #investmentAllocationBox{
+        margin-left: auto;
+        background-color: white;
+        border: 1px solid black;
+        height: auto;
+        width: 50%;
+        padding: 0;
+        display:grid;
+    }
+  
+  
+   p{
+    margin: auto;
+    padding: 0;
+   }
+   #answer{
+    margin: auto;
+    padding: 1rem;
+   }
+   #instructions{
+
+    width: 50%;
+    margin: 1rem auto;
+
+   }
+   hr {
+    border: none;
+    border-top: 3px double #333;
+    color: #333;
+    overflow: visible;
+    text-align: center;
+    height: 5px;
+    }
+
+   hr::after {
+    /*background: #fff;*/
+    content: '§';
+    padding: 0 4px;
+    position: relative;
+    top: -13px;
+    }
+   h1{
+        margin: 1rem auto;
+    }
+</style>
+
+</head>
+<body>
+    <!--
+        possible features
+        slide rule
+        graphics data presentation
+
+    ${payment.toFixed(2)}
+    ${investmentValue.toFixed(2)}
+    ${totalInterest.toFixed(2)} 
+    ${payments.toFixed(2)}
+    ${leftOverMonthsValue.toFixed(2)}
+    ${justRegularPaymentInterest.toFixed(2)}
+    ${(justRegularPaymentInterest + debt).toFixed(2)}
+    ${investmentValue-(justRegularPaymentInterest + debt)}`-->
+    <h1>Debt vs Investment Calculator</h1>
+    <div id="instructions">
+        This is a calculator for comparing debt to investments, more specifically it shows what
+        would give you a better return when trying to decide between putting extra money towards
+        debt or investments.<br><br/>
+        <strong>Instructions</strong>: You fill in your debt, interest rate, your investment capital, the expected return rate,
+        how much you have to invest each month, and the number of months to pay off the debt. Then you click update and it makes various calculations
+        that you can see in the box labeled regular calculator.  Then you can click the buttons labeled to debt
+        and to investments to see incremental differences and how you allocate your extra funds.
+        <br><br>
+        Feel free to <strong>contact me</strong> with questions or comments <a href="https://kingjonesfrazier.dev/contact/">here</a>.
+    </div>
+    <hr />
+    <form id="calculator">
+        <label for="debt">principal of debt<input type="number" name='debt' id='debt'></label> 
+        <label for="rateD">interest rate of debt<input type='number' min='0' max='99'name="rateD" id='rateD'></label>
+        <label for="assets">principal of assets<input type='number' name='assets' id='assets'></label>
+        <label for="rateA">interest rate of assets<input type='number'min='0' max="99" name="rateA" id='rateA'></label>
+        <label for="extraPayment">extra funds available<input type='number' name="extraPayment" id="extraPayment"></label>
+       
+       
+       
+        <!--<label for="howOften">when interest applied. Typically this is monthly
+            <select name="howOften" id="howOften">
+                <option value='monthly'>monthly</option>
+                <option value="anually">anually</option>
+                <option value="daily">daily</option>
+            </select>
+        </label>-->
+        <label>number of months<input type='number' name='months' id='months'></label>
+        <div id="slideBox"> 
+            <button type="submit" id="debtButton" onclick='incrementDebt()'>to debt</button>
+            <div id="debtAllocationBox"></div>
+            <div id="slideLine">
+                <div id="slideButton"></div>
+            </div>
+            <div id="investmentAllocationBox"></div>
+            <button type="submit" id='investmentButton' onclick="incrementInvest()">to investments</button>
+        </div>
+        <button type="submit" onclick="calcDifference()">submit</button>
+    </form>
+    <fieldset>
+        <legend>incremental calculator</legend>
+    <div id="incrementContainer">
+        <div id="debtIncAnswer"></div>
+        <div id='investIncAnswer'></div>
+        <div id="netWorthAnswer"></div>
+    </div>
+</fieldset>
+<fieldset>
+    <legend>regular calculator</legend>
+    <div id="answer"></div>
+</fieldset>
+<!--
+<div class="diagonal-div"></div>
+
+<div id="exp">
+   
+</div> 
+<button type="button" onclick="Savestuff()">save</button>
+<button type="button" onclick="fillDiv()">fillDiv</button>
+
+-->
+</body>
+<script type="text/javascript">
+    function slider(){
+
+    }
+   /* 
+    function fillDiv(){
+        let expdiv = document.getElementById('exp');
+        expdiv.innerText = localStorage.getItem('drinks')
+        console.log("sessionStorage",sessionStorage.getItem('tacos'))
+    }
+    
+    function Savestuff(){
+        sessionStorage.setItem('tacos',1);
+        localStorage.setItem('drinks',2);
+    }
+*/
+    let form = document.getElementById('calculator')
+
+    function compoundInterestFormula(principal,rate,months){
+        //to calculate compound interest of investment
+        
+        return principal*(1+(rate))**(months)
+    }
+    function paymentFormula(principal,rate,months){
+        //to calculate what your regular monthly payment would be
+        console.log('principal', principal)
+        const a = (1+rate)**(months)-1; console.log('a',a)
+        const b = rate*(1+rate)**(months); console.log('b',b)
+        let divisor = a /b; console.log('divisor',divisor)
+        
+        return principal/divisor;
+
+    }
+    function simpleInterestFormula(principal,rate){
+        return principal*rate
+    }
+    function ciWithPayment(principal,rate,payment,months){
+        let earnings = 0;
+        
+        while(months>0){
+            //for future reference make sure your loop is actually accumulating something
+        
+            let monthsReturn = simpleInterestFormula(principal, rate);
+            
+            earnings =  principal + monthsReturn + payment;
+            principal = earnings;
+            //console.log(`${earnings} = ${principal} + ${monthsReturn} + ${payment}`)
+            
+            months--;
+        }
+        
+        return earnings;
+    }
+    function extraPaymentCalc(principal,rate,regularPayment,extraPayment,months){
+        //call simple interest formula and then adds interest to principal then subtract the extra payment until prinpcipal equal 0
+        let payments = 0;
+        let totalInterest = 0;
+        while(principal>0){
+            console.log('principal',principal)
+            console.log('regular Payment',regularPayment)
+            console.log('extraPayment',extraPayment)
+            payments += 1;
+            console.log('rate',rate)
+            let interest = simpleInterestFormula(principal,rate)
+            console.log('interest', interest)
+            totalInterest = totalInterest + interest;
+            console.log('totalinterst', totalInterest)
+            principal = principal + interest;
+            principal = principal - (extraPayment+regularPayment);
+        }
+
+        if(months){
+            //console.log('extraPaymentCalc wiht months total interest payments, months', totalInterest, payments, months-payments)
+            console.log('totalInterest',totalInterest)
+            return [totalInterest,payments,months-payments]
+        }else{
+            //console.log('calling extraPaymentCalc without months',totalInterest, payments)
+            return [totalInterest,payments]
+        }
+        
+    }
+    function noExtraPaymentCalc(principal,rate,payment,months){
+        let totalInterest = 0;
+        while(principal>0){
+            let interest = simpleInterestFormula(principal,rate)
+            totalInterest = totalInterest + interest;
+            principal = principal + interest;
+            principal = principal - payment;
+        }
+        return totalInterest;
+    }
+
+    function calcDifference(){
+
+        form.addEventListener('submit',function(e){
+            e.preventDefault();
+            const data = new FormData(e.target);
+            const debt = parseInt(data.get('debt'));
+            const assets = parseInt(data.get('assets'));
+            const rateD = (parseFloat(data.get('rateD'))/100)/12;
+            //console.log("rateD", rateD)
+            const rateA = (parseFloat(data.get('rateA'))/100)/12;
+            //console.log('rateA',rateA)
+            const months = parseFloat(data.get('months'));
+            const payment = paymentFormula(debt,rateD,months)
+            const extraPayment = parseFloat(data.get('extraPayment'));
+            const investmentValue = compoundInterestFormula(assets,rateA,months);
+            const justInterest = simpleInterestFormula(debt,rateD)
+            const [totalInterest,payments,leftOverMonths] = extraPaymentCalc(debt,rateD,payment,extraPayment,months);
+            const leftOverMonthsValue = ciWithPayment(assets,rateA,extraPayment,leftOverMonths);
+            const justRegularPaymentInterest = noExtraPaymentCalc(debt,rateD,payment,months)
+
+            let answer = document.getElementById('answer')
+            let answerText = document.createElement('p');
+            answer.innerText = `Your regular payment would be: ${payment.toFixed(2)} \n and investment value no additional payments is: ${investmentValue.toFixed(2)}. \n Interest on debt with extraPayment is: ${totalInterest.toFixed(2)} \n and number of payments are: ${payments.toFixed(2)}, \n and if you continue to invest after you finish paying your debt for the remaining months your networth ends up being: ${leftOverMonthsValue.toFixed(2)}, \n just regular payment debt interest: ${justRegularPaymentInterest.toFixed(2)}, \n just regular payment total: ${(justRegularPaymentInterest + debt).toFixed(2)}. \n so networth in the scenario you invest while pay debt is ${investmentValue-(justRegularPaymentInterest + debt)}`;
+                answer.appendChild(answerText);
+        })
+
+        
+    
+       
+    }
+
+    let debtBox = document.getElementById('debtAllocationBox');
+    let investBox = document.getElementById('investmentAllocationBox')
+    let netWorthBox = document.getElementById('netWorthAnswer')
+    let updatedNetworth = document.createElement('p')
+    let updatedValueA = document.createElement('p')
+    let updatedValueD = document.createElement('p')
+    debtBox.appendChild(updatedValueD)
+    investBox.appendChild(updatedValueA)
+    netWorthBox.appendChild(updatedNetworth)
+    
+    let extraPayment = document.getElementById('extraPayment');
+    let investValue = 0;
+    let debtValue = 0;
+    let tempValue = 0;
+    let debtAnswer = document.createElement('p')
+    let investAnswer = document.createElement('p')
+
+
+    function incrementDebt(){
+        let exPayValue = parseInt(document.getElementById('extraPayment').value);
+    
+        const debt = parseInt(document.getElementById('debt').value);
+        //console.log('debt',debt, typeof debt)
+        const assets = parseInt(document.getElementById('assets').value)
+        //console.log('assets', assets)
+        const rateD = parseFloat(document.getElementById('rateD').value/100)/12;
+        //console.log('rateD', rateD)
+        const rateA = parseFloat(document.getElementById('rateA').value/100)/12;
+        const months = parseInt(document.getElementById('months').value);
+        //console.log('months in incdebt', months)
+        //console.log("rateD", rateD)
+        //const rateA = (parseFloat(data.get('rateA'))/100)/12;
+        //tempValue = exPayValue;
+        
+        if(exPayValue > 0){
+            exPayValue = exPayValue -1;//for extraPayment input field
+            debtValue++;
+            updatedValueD.innerText = debtValue; //for debtbox
+
+        }else if(investValue > 0){
+            investValue--;
+            updatedValueA.innerText = investValue;
+            debtValue++;
+            updatedValueD.innerText = debtValue; //for debtbox
+
+            
+        }else{
+            alert('no funds left to distribute')
+        }
+        
+       
+        extraPayment.value = exPayValue;
+        
+        const payment = paymentFormula(debt,rateD,months) // 12 = number of months
+        console.log('payment', payment)
+        
+        let [totalInterest, payments] = extraPaymentCalc(debt,rateD,payment,debtValue);
+      
+        let earnings = ciWithPayment(assets,rateA,investValue,months)
+
+        let debtAnswerBox = document.getElementById('debtIncAnswer');
+        debtAnswer.innerText = `total interest paid with extra payment ${totalInterest.toFixed(2)} `
+        debtAnswerBox.appendChild(debtAnswer);
+      
+        
+        let investAnswerBox = document.getElementById('investIncAnswer');
+        let netWorth = earnings - totalInterest;
+        updatedNetworth.innerText = netWorth;
+        investAnswer.innerText = `total earnings with extra payment ${earnings.toFixed(2)} `
+        investAnswerBox.appendChild(investAnswer);
+
+    }
+    function incrementInvest(){
+        let exPayValue = parseInt(extraPayment.value);
+        const debt = parseInt(document.getElementById('debt').value);
+        //console.log('debt',debt, typeof debt)
+        const assets = parseInt(document.getElementById('assets').value)
+        //console.log('assets', assets)
+        const rateD = parseFloat(document.getElementById('rateD').value/100)/12;
+        //console.log('rateD', rateD)
+        const rateA = parseFloat(document.getElementById('rateA').value/100)/12;
+        const months = parseInt(document.getElementById('months').value);
+        
+
+        if(exPayValue > 0){
+            exPayValue = exPayValue -1;
+            investValue++;
+            updatedValueA.innerText = investValue;
+        }else if(debtValue > 0){
+            investValue++;
+            updatedValueA.innerText = investValue;
+            debtValue--;
+            updatedValueD.innerText = debtValue; //for debtbox
+
+            
+
+        }else{
+            alert('no funds left to distribute');
+        }
+        extraPayment.value = exPayValue;
+        //console.log('call ciwithpayment in incvest',assets,rateA,investValue,months)
+        let earnings = ciWithPayment(assets,rateA,investValue,months);
+        //console.log('earnings',earnings)
+        const payment = paymentFormula(debt,rateD,months) // 12 = number of months
+        let [totalInterest, payments] = extraPaymentCalc(debt,rateD,payment,debtValue)
+        
+        let investAnswerBox = document.getElementById('investIncAnswer');
+        
+        investAnswer.innerText = `total earnings with extra payment ${earnings.toFixed(2)} `
+        investAnswerBox.appendChild(investAnswer);
+        let netWorth = earnings - totalInterest;
+        updatedNetworth.innerText = netWorth.toFixed(2);
+
+        
+       
+        let debtAnswerBox = document.getElementById('debtIncAnswer');
+        debtAnswer.innerText = `total interest paid with extra payment ${totalInterest.toFixed(2)} `
+        debtAnswerBox.appendChild(debtAnswer);
+        
+
+    }
+    /*localStorage.getItem('drinks');
+    sessionStorage.getItem('tacos');*/
+</script>
+</body>
+</html>
